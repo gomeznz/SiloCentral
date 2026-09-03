@@ -28,8 +28,8 @@ export default async function AdminPage({
         <div>
           <h1 className="text-2xl font-semibold">Setup</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Register each SiloMon site here, then set that site&apos;s CENTRAL_DASHBOARD_URL and
-            CENTRAL_API_KEY (shown per-site below) so its worker starts pushing reports.
+            Register each SiloMon site here, then paste the dashboard URL and API key shown on its edit page
+            into that site&apos;s own Setup page (Central dashboard card) so its worker starts pushing reports.
           </p>
         </div>
         <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
