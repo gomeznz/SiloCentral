@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
@@ -12,6 +13,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // Reads live DB state on every request — must not be statically prerendered
 // at build time (the DB isn't reachable from the build environment anyway).
 export const dynamic = "force-dynamic";
+
+// This dashboard's own public URL, for the copy-pasteable config block
+// below. Prefers Railway's own domain variable; falls back to the actual
+// request's Host header (works for local dev, or any non-Railway deploy).
+async function getDashboardUrl(): Promise<string> {
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  }
+  const h = await headers();
+  const host = h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  return host ? `${proto}://${host}` : "<this dashboard's URL>";
+}
 
 export default async function EditSitePage({
   params,
@@ -28,6 +42,8 @@ export default async function EditSitePage({
   if (!site) {
     notFound();
   }
+
+  const dashboardUrl = await getDashboardUrl();
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-8">
@@ -62,12 +78,13 @@ export default async function EditSitePage({
         </CardHeader>
         <CardContent className="space-y-4 pt-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Set these on the SiloMon instance running at this site (its <code>.env</code>, or the Railway/systemd
-            service&apos;s environment), then restart its worker.
+            Paste these into the &ldquo;Central dashboard&rdquo; card on that site&apos;s own Setup page
+            (<code>/admin</code> on its SiloMon instance) — no restart needed, it takes effect on the worker&apos;s
+            next push.
           </p>
           <pre className="overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-900">
-{`CENTRAL_DASHBOARD_URL=<this dashboard's URL>
-CENTRAL_API_KEY=${site.apiKey}`}
+{`Dashboard URL: ${dashboardUrl}
+API key: ${site.apiKey}`}
           </pre>
           <form action={regenerateApiKeyAction}>
             <input type="hidden" name="id" value={site.id} />
