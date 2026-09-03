@@ -19,6 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </header>
         <div className="flex-1">{children}</div>
+        <footer className="border-t border-slate-200 px-8 py-4 text-xs text-slate-400 dark:border-slate-800 dark:text-slate-600">
+          v{process.env.APP_VERSION ?? "dev"}
+        </footer>
       </body>
     </html>
   );
