@@ -66,11 +66,11 @@ export function SiloGauge({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col items-center rounded-lg border p-6 shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
+        "flex shrink-0 flex-col items-center rounded-lg border p-4 shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
         CARD_BACKGROUND[status],
       )}
     >
-      <svg viewBox="0 0 120 170" className="h-56 w-40">
+      <svg viewBox="0 0 120 170" className="h-40 w-28">
         <defs>
           <clipPath id={clipId}>
             <path d={SILO_OUTLINE} />
@@ -102,16 +102,16 @@ export function SiloGauge({
         </text>
       </svg>
 
-      <div className="mt-2 text-center">
-        <div className="text-base font-medium text-slate-900 dark:text-slate-100">{name}</div>
-        <div className="text-sm text-slate-500 dark:text-slate-400">
+      <div className="mt-1.5 text-center">
+        <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{name}</div>
+        <div className="text-xs text-slate-500 dark:text-slate-400">
           {currentValue !== null ? `${currentValue.toLocaleString()} / ${capacity.toLocaleString()} ${unit}` : "No data"}
         </div>
-        <span className={cn("mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium", badge.className)}>
+        <span className={cn("mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium", badge.className)}>
           {badge.label}
         </span>
         {lastReadAt && (
-          <div className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
+          <div className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
             <LocalDateTime value={lastReadAt} mode="time" />
           </div>
         )}
