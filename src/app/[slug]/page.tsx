@@ -55,7 +55,7 @@ export default async function SiteDetailPage({ params }: { params: Promise<{ slu
               {page.silos.length === 0 ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">No silos on this page.</p>
               ) : (
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex gap-4 overflow-x-auto pb-2">
                   {page.silos.map((silo, i) => (
                     <SiloGauge
                       key={silo.name}

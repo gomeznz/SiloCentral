@@ -66,7 +66,7 @@ export function SiloGauge({
   return (
     <div
       className={cn(
-        "flex flex-col items-center rounded-lg border p-6 shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
+        "flex shrink-0 flex-col items-center rounded-lg border p-6 shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
         CARD_BACKGROUND[status],
       )}
     >
