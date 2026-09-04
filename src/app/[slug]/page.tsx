@@ -5,8 +5,8 @@ import { db } from "@/db";
 import { sites } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/status-badge";
 import { LocalDateTime } from "@/components/local-date-time";
+import { SiloGauge } from "@/components/silo-gauge";
 import { isSiteOnline } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
@@ -51,26 +51,25 @@ export default async function SiteDetailPage({ params }: { params: Promise<{ slu
             <CardHeader>
               <CardTitle>{page.name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 pt-4">
+            <CardContent className="pt-4">
               {page.silos.length === 0 ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">No silos on this page.</p>
               ) : (
-                page.silos.map((silo) => (
-                  <div
-                    key={silo.name}
-                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-sm dark:border-slate-800"
-                  >
-                    <div>
-                      <span className="font-medium">{silo.name}</span>{" "}
-                      <span className="text-slate-400">
-                        · {Math.round(silo.percent)}%
-                        {silo.currentValue !== null &&
-                          ` · ${silo.currentValue.toLocaleString()} / ${silo.capacity.toLocaleString()} ${silo.unit}`}
-                      </span>
-                    </div>
-                    <StatusBadge status={silo.status} />
-                  </div>
-                ))
+                <div className="flex flex-wrap justify-center gap-4">
+                  {page.silos.map((silo) => (
+                    <SiloGauge
+                      key={silo.name}
+                      clipKey={`${page.slug}-${silo.name}`}
+                      name={silo.name}
+                      percent={silo.percent}
+                      currentValue={silo.currentValue}
+                      capacity={silo.capacity}
+                      unit={silo.unit}
+                      status={silo.status}
+                      lastReadAt={silo.lastReadAt}
+                    />
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
