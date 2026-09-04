@@ -57,7 +57,10 @@ export function SiloGauge({
 }) {
   const clampedPercent = Math.max(0, Math.min(100, percent));
   const fillY = BOTTOM_Y - (clampedPercent / 100) * RANGE;
-  const clipId = `silo-clip-${clipKey}`;
+  // Sanitized because it flows straight into an SVG url(#...) reference —
+  // an unescaped space (or other CSS-meaningful character) in the id breaks
+  // that reference silently, leaving the fill rect unclipped.
+  const clipId = `silo-clip-${clipKey.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
   const badge = STATUS_BADGE[status];
 
   return (
