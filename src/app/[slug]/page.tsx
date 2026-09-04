@@ -6,6 +6,7 @@ import { sites } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
+import { LocalDateTime } from "@/components/local-date-time";
 import { isSiteOnline } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
@@ -28,9 +29,13 @@ export default async function SiteDetailPage({ params }: { params: Promise<{ slu
         <div>
           <h1 className="text-2xl font-semibold">{site.name}</h1>
           <p className={`text-sm ${online ? "text-slate-500 dark:text-slate-400" : "text-red-600 dark:text-red-400"}`}>
-            {site.lastReportAt
-              ? `${online ? "Last seen" : "Stale — last seen"} ${new Date(site.lastReportAt).toLocaleString()}`
-              : "Never reported"}
+            {site.lastReportAt ? (
+              <>
+                {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+              </>
+            ) : (
+              "Never reported"
+            )}
           </p>
         </div>
         <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>

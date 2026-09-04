@@ -5,6 +5,7 @@ import { sites } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
+import { LocalDateTime } from "@/components/local-date-time";
 import { isSiteOnline, siteRollup } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
@@ -51,9 +52,13 @@ export default async function HomePage() {
                     <p
                       className={`text-xs ${online ? "text-slate-400 dark:text-slate-500" : "text-red-600 dark:text-red-400"}`}
                     >
-                      {site.lastReportAt
-                        ? `${online ? "Last seen" : "Stale — last seen"} ${new Date(site.lastReportAt).toLocaleString()}`
-                        : "Never reported"}
+                      {site.lastReportAt ? (
+                        <>
+                          {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+                        </>
+                      ) : (
+                        "Never reported"
+                      )}
                     </p>
                   </CardContent>
                 </Card>
