@@ -4,10 +4,8 @@ import { and, asc, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
 import { sites, siteSiloReadings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LocalDateTime } from "@/components/local-date-time";
-import { SiloGauge } from "@/components/silo-gauge";
-import { SiloTrendChart, type TrendSeries } from "@/components/silo-trend-chart";
+import { SitePagesView } from "@/components/site-pages-view";
 import { isSiteOnline } from "@/lib/site-status";
 
 // How far back the trend chart looks — same window SiloMon itself uses, and
@@ -66,61 +64,7 @@ export default async function SiteDetailPage({ params }: { params: Promise<{ slu
         </Link>
       </div>
 
-      {!site.latestReport || site.latestReport.pages.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-slate-400">No data reported by this site yet.</p>
-      ) : (
-        site.latestReport.pages.map((page) => {
-          const trendSeries: TrendSeries[] = page.silos.map((silo) => ({
-            id: `${page.slug}-${silo.name}`,
-            name: silo.name,
-            points: readings
-              .filter((r) => r.pageSlug === page.slug && r.siloName === silo.name)
-              .map((r) => ({ readAt: r.recordedAt, value: Number(r.percent) })),
-          }));
-
-          return (
-            <div key={page.slug} className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{page.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  {page.silos.length === 0 ? (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">No silos on this page.</p>
-                  ) : (
-                    <div className="flex gap-4 overflow-x-auto pb-2">
-                      {page.silos.map((silo, i) => (
-                        <SiloGauge
-                          key={silo.name}
-                          clipKey={`${page.slug}-${i}`}
-                          name={silo.name}
-                          percent={silo.percent}
-                          currentValue={silo.currentValue}
-                          capacity={silo.capacity}
-                          unit={silo.unit}
-                          status={silo.status}
-                          lastReadAt={silo.lastReadAt}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {page.silos.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Level trend</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <SiloTrendChart series={trendSeries} />
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          );
-        })
-      )}
+      <SitePagesView pages={site.latestReport?.pages ?? []} readings={readings} />
     </div>
   );
 }

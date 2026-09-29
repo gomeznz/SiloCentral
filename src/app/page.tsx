@@ -19,9 +19,14 @@ export default async function HomePage() {
     <div className="mx-auto w-full max-w-6xl space-y-6 p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Sites</h1>
-        <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          Setup
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/all-sites" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            All Site View
+          </Link>
+          <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Setup
+          </Link>
+        </div>
       </div>
 
       {allSites.length === 0 ? (
