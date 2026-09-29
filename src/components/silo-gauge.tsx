@@ -10,7 +10,7 @@ const TOP_Y = 15;
 const BOTTOM_Y = 155;
 const RANGE = BOTTOM_Y - TOP_Y;
 
-const STATUS_FILL: Record<SiteSiloStatus, string> = {
+export const STATUS_FILL: Record<SiteSiloStatus, string> = {
   ok: "#6366f1", // indigo-500
   low: "#f59e0b", // amber-500
   critical: "#991b1b", // red-800
@@ -45,6 +45,7 @@ export function SiloGauge({
   unit,
   status,
   lastReadAt,
+  size = "default",
 }: {
   clipKey: string;
   name: string;
@@ -54,7 +55,12 @@ export function SiloGauge({
   unit: string;
   status: SiteSiloStatus;
   lastReadAt: string | null;
+  // "compact" drops the currentValue/capacity line and last-read time,
+  // shrinking the whole card to icon + name + badge — for views (like
+  // /all-sites) that need many of these to fit on one screen at once.
+  size?: "default" | "compact";
 }) {
+  const compact = size === "compact";
   const clampedPercent = Math.max(0, Math.min(100, percent));
   const fillY = BOTTOM_Y - (clampedPercent / 100) * RANGE;
   // Sanitized because it flows straight into an SVG url(#...) reference —
@@ -66,11 +72,12 @@ export function SiloGauge({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col items-center rounded-lg border p-4 shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
+        "flex shrink-0 flex-col items-center rounded-lg border shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
+        compact ? "p-1.5" : "p-4",
         CARD_BACKGROUND[status],
       )}
     >
-      <svg viewBox="0 0 120 170" className="h-40 w-28">
+      <svg viewBox="0 0 120 170" className={compact ? "h-14 w-10" : "h-40 w-28"}>
         <defs>
           <clipPath id={clipId}>
             <path d={SILO_OUTLINE} />
@@ -103,14 +110,26 @@ export function SiloGauge({
       </svg>
 
       <div className="mt-1.5 text-center">
-        <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{name}</div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
-          {currentValue !== null ? `${currentValue.toLocaleString()} / ${capacity.toLocaleString()} ${unit}` : "No data"}
+        <div className={cn("font-medium text-slate-900 dark:text-slate-100", compact ? "text-[10px]" : "text-sm")}>
+          {name}
         </div>
-        <span className={cn("mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium", badge.className)}>
+        {!compact && (
+          <div className="text-xs text-slate-500 dark:text-slate-400">
+            {currentValue !== null
+              ? `${currentValue.toLocaleString()} / ${capacity.toLocaleString()} ${unit}`
+              : "No data"}
+          </div>
+        )}
+        <span
+          className={cn(
+            "mt-1 inline-block rounded-full font-medium",
+            compact ? "px-1.5 py-0 text-[8px]" : "px-2 py-0.5 text-[11px]",
+            badge.className,
+          )}
+        >
           {badge.label}
         </span>
-        {lastReadAt && (
+        {!compact && lastReadAt && (
           <div className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
             <LocalDateTime value={lastReadAt} mode="time" />
           </div>

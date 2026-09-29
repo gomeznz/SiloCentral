@@ -43,9 +43,9 @@ export default async function AllSitesPage() {
       : [];
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-10 p-8">
+    <div className="mx-auto w-full max-w-[1600px] space-y-3 p-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">All sites</h1>
+        <h1 className="text-lg font-semibold">All sites</h1>
         <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
           Back to sites
         </Link>
@@ -60,29 +60,28 @@ export default async function AllSitesPage() {
           const online = isSiteOnline(site.lastReportAt);
 
           return (
-            <div key={site.id} className="space-y-6">
-              <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-3 dark:border-slate-800">
-                <div>
-                  <Link href={`/${site.slug}`} className="text-xl font-semibold hover:underline">
-                    {site.name}
-                  </Link>
-                  <p
-                    className={`text-sm ${online ? "text-slate-500 dark:text-slate-400" : "text-red-600 dark:text-red-400"}`}
-                  >
-                    {site.lastReportAt ? (
-                      <>
-                        {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
-                      </>
-                    ) : (
-                      "Never reported"
-                    )}
-                  </p>
-                </div>
+            <div key={site.id} className="space-y-1.5 border-t border-slate-200 pt-1.5 dark:border-slate-800">
+              <div className="flex items-baseline gap-2">
+                <Link href={`/${site.slug}`} className="text-sm font-semibold hover:underline">
+                  {site.name}
+                </Link>
+                <span
+                  className={`text-xs ${online ? "text-slate-400 dark:text-slate-500" : "text-red-600 dark:text-red-400"}`}
+                >
+                  {site.lastReportAt ? (
+                    <>
+                      {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+                    </>
+                  ) : (
+                    "Never reported"
+                  )}
+                </span>
               </div>
 
               <SitePagesView
                 pages={site.latestReport?.pages ?? []}
                 readings={readings.filter((r) => r.siteId === site.id)}
+                compact
               />
             </div>
           );
