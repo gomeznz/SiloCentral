@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { sites } from "@/db/schema";
+import { sites, siteSiloReadings } from "@/db/schema";
 
 // A SiloMon site's worker POSTs its report here on a timer (see
 // CENTRAL_DASHBOARD_URL/CENTRAL_API_KEY in that repo's scripts/silo-worker.ts).
@@ -52,6 +52,18 @@ export async function POST(request: Request) {
     .update(sites)
     .set({ latestReport: parsed.data, lastReportAt: new Date() })
     .where(eq(sites.id, site.id));
+
+  const readings = parsed.data.pages.flatMap((page) =>
+    page.silos.map((silo) => ({
+      siteId: site.id,
+      pageSlug: page.slug,
+      siloName: silo.name,
+      percent: silo.percent.toFixed(2),
+    })),
+  );
+  if (readings.length > 0) {
+    await db.insert(siteSiloReadings).values(readings);
+  }
 
   return NextResponse.json({ ok: true });
 }
