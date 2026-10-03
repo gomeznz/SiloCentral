@@ -99,32 +99,30 @@ export function SitePagesView({
 
         return (
           <div key={page.slug} className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{page.name}</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                {page.silos.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">No silos on this page.</p>
-                ) : (
-                  <div className="flex gap-4 overflow-x-auto pb-2">
-                    {page.silos.map((silo, i) => (
-                      <SiloGauge
-                        key={silo.name}
-                        clipKey={`${page.slug}-${i}`}
-                        name={silo.name}
-                        percent={silo.percent}
-                        currentValue={silo.currentValue}
-                        capacity={silo.capacity}
-                        unit={silo.unit}
-                        status={silo.status}
-                        lastReadAt={silo.lastReadAt}
-                      />
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Same layout as SiloMon's own dashboard: the page name as a heading
+                over a plain responsive grid of full-size gauges — no wrapping card. */}
+            <section className="space-y-3">
+              <h2 className="text-lg font-semibold">{page.name}</h2>
+              {page.silos.length === 0 ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">No silos on this page.</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                  {page.silos.map((silo, i) => (
+                    <SiloGauge
+                      key={silo.name}
+                      clipKey={`${page.slug}-${i}`}
+                      name={silo.name}
+                      percent={silo.percent}
+                      currentValue={silo.currentValue}
+                      capacity={silo.capacity}
+                      unit={silo.unit}
+                      status={silo.status}
+                      lastReadAt={silo.lastReadAt}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
 
             {page.silos.length > 0 && (
               <Card>

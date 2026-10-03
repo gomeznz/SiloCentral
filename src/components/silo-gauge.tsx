@@ -72,12 +72,12 @@ export function SiloGauge({
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col items-center rounded-lg border shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
-        compact ? "p-1.5" : "p-4",
+        "flex flex-col items-center rounded-lg border shadow-sm shadow-slate-200/60 dark:shadow-slate-950/60",
+        compact ? "p-1.5" : "p-6",
         CARD_BACKGROUND[status],
       )}
     >
-      <svg viewBox="0 0 120 170" className={compact ? "h-14 w-10" : "h-40 w-28"}>
+      <svg viewBox="0 0 120 170" className={compact ? "h-14 w-10" : "h-64 w-48"}>
         <defs>
           <clipPath id={clipId}>
             <path d={SILO_OUTLINE} />
@@ -109,12 +109,12 @@ export function SiloGauge({
         </text>
       </svg>
 
-      <div className="mt-1.5 text-center">
-        <div className={cn("font-medium text-slate-900 dark:text-slate-100", compact ? "text-[10px]" : "text-sm")}>
+      <div className={cn("text-center", compact ? "mt-1.5" : "mt-2")}>
+        <div className={cn("font-medium text-slate-900 dark:text-slate-100", compact ? "text-[10px]" : "text-base")}>
           {name}
         </div>
         {!compact && (
-          <div className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="text-sm text-slate-500 dark:text-slate-400">
             {currentValue !== null
               ? `${currentValue.toLocaleString()} / ${capacity.toLocaleString()} ${unit}`
               : "No data"}
@@ -122,15 +122,15 @@ export function SiloGauge({
         )}
         <span
           className={cn(
-            "mt-1 inline-block rounded-full font-medium",
-            compact ? "px-1.5 py-0 text-[8px]" : "px-2 py-0.5 text-[11px]",
+            "inline-block rounded-full font-medium",
+            compact ? "mt-1 px-1.5 py-0 text-[8px]" : "mt-1.5 px-2.5 py-0.5 text-xs",
             badge.className,
           )}
         >
           {badge.label}
         </span>
         {!compact && lastReadAt && (
-          <div className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+          <div className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">
             <LocalDateTime value={lastReadAt} mode="time" />
           </div>
         )}
