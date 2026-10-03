@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, timestamp, jsonb, numeric } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, text, timestamp, jsonb, numeric, index } from "drizzle-orm/pg-core";
 
 // Mirrors the SiloReport shape each SiloMon site pushes (see
 // src/lib/report.ts in the SiloMon repo) — kept as a plain type here rather
@@ -45,13 +45,19 @@ export const sites = pgTable("sites", {
 // site's pushed JSON, not a row of its own. Stores percent directly (already
 // computed by the pushing site) rather than raw value + capacity, since
 // percent-of-capacity is the only thing the trend chart plots.
-export const siteSiloReadings = pgTable("site_silo_readings", {
-  id: serial("id").primaryKey(),
-  siteId: integer("site_id")
-    .notNull()
-    .references(() => sites.id, { onDelete: "cascade" }),
-  pageSlug: text("page_slug").notNull(),
-  siloName: text("silo_name").notNull(),
-  percent: numeric("percent", { precision: 5, scale: 2 }).notNull(),
-  recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const siteSiloReadings = pgTable(
+  "site_silo_readings",
+  {
+    id: serial("id").primaryKey(),
+    siteId: integer("site_id")
+      .notNull()
+      .references(() => sites.id, { onDelete: "cascade" }),
+    pageSlug: text("page_slug").notNull(),
+    siloName: text("silo_name").notNull(),
+    percent: numeric("percent", { precision: 5, scale: 2 }).notNull(),
+    recordedAt: timestamp("recorded_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  // Trend charts filter by site and a time window; without this, a weekly
+  // or yearly range would scan every reading ever stored for every site.
+  (t) => [index("site_silo_readings_site_id_recorded_at_idx").on(t.siteId, t.recordedAt)],
+);

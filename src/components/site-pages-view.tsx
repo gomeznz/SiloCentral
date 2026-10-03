@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiloGauge, STATUS_FILL } from "@/components/silo-gauge";
 import { SiloTrendChart, type TrendSeries } from "@/components/silo-trend-chart";
 import { TrendSparkline } from "@/components/trend-sparkline";
+import type { LocalDateTimeMode } from "@/components/local-date-time";
 import type { SiteReport } from "@/db/schema";
 
 type Reading = { pageSlug: string; siloName: string; percent: string; recordedAt: Date };
@@ -14,9 +15,15 @@ export function SitePagesView({
   pages,
   readings,
   compact = false,
+  axisFormat,
+  emptyMessage,
 }: {
   pages: SiteReport["pages"];
   readings: Reading[];
+  // Passed straight through to the full-size trend chart (not used by the
+  // compact sparklines, which have no axis). See SiloTrendChart.
+  axisFormat?: LocalDateTimeMode;
+  emptyMessage?: string;
   // All-sites needs every site's every silo to fit on one screen, so it
   // trades the full tank gauge + axis-labeled chart for a mini gauge and a
   // bare sparkline, packed into a wrapping grid instead of one card per
@@ -116,7 +123,7 @@ export function SitePagesView({
                   <CardTitle>Level trend</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
-                  <SiloTrendChart series={trendSeries} />
+                  <SiloTrendChart series={trendSeries} axisFormat={axisFormat} emptyMessage={emptyMessage} />
                 </CardContent>
               </Card>
             )}

@@ -1,0 +1,1 @@
+CREATE INDEX "site_silo_readings_site_id_recorded_at_idx" ON "site_silo_readings" USING btree ("site_id","recorded_at");
