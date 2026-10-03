@@ -4,11 +4,8 @@ import { and, asc, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sites, siteSiloReadings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
-import { TrendDateRangeForm } from "@/components/trend-date-range-form";
-import { TrendRangeSelector } from "@/components/trend-range-selector";
 import { isSiteOnline } from "@/lib/site-status";
 import {
   TREND_RANGES,
@@ -114,7 +111,7 @@ export default async function SiteDetailPage({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
+    <div className="mx-auto w-full max-w-6xl space-y-6 p-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{site.name}</h1>
@@ -138,25 +135,12 @@ export default async function SiteDetailPage({
         readings={readings}
         axisFormat={view.axis}
         emptyMessage={view.custom ? "No readings were recorded in this date range." : undefined}
-        // One range control for the whole site, shown directly above the first
-        // trend chart: a site can have several pages, each with its own chart,
-        // and they all show the same window.
-        beforeTrend={
-          <Card>
-            <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-              <CardTitle>Trend range</CardTitle>
-              <TrendRangeSelector slug={slug} active={view.preset} />
-            </CardHeader>
-            <CardContent className="pt-4">
-              <TrendDateRangeForm
-                slug={slug}
-                from={view.custom?.from ?? null}
-                to={view.custom?.to ?? null}
-                active={view.custom !== null}
-              />
-            </CardContent>
-          </Card>
-        }
+        range={{
+          slug,
+          active: view.preset,
+          from: view.custom?.from ?? null,
+          to: view.custom?.to ?? null,
+        }}
       />
     </div>
   );

@@ -2,7 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SiloGauge, STATUS_FILL } from "@/components/silo-gauge";
 import { SiloTrendChart, type TrendSeries } from "@/components/silo-trend-chart";
 import { TrendSparkline } from "@/components/trend-sparkline";
+import { TrendDateRangeForm } from "@/components/trend-date-range-form";
+import { TrendRangeSelector } from "@/components/trend-range-selector";
 import type { LocalDateTimeMode } from "@/components/local-date-time";
+import type { TrendRangeKey } from "@/lib/trend-range";
 import type { SiteReport } from "@/db/schema";
 
 type Reading = { pageSlug: string; siloName: string; percent: string; recordedAt: Date };
@@ -17,7 +20,7 @@ export function SitePagesView({
   compact = false,
   axisFormat,
   emptyMessage,
-  beforeTrend,
+  range,
 }: {
   pages: SiteReport["pages"];
   readings: Reading[];
@@ -25,10 +28,11 @@ export function SitePagesView({
   // compact sparklines, which have no axis). See SiloTrendChart.
   axisFormat?: LocalDateTimeMode;
   emptyMessage?: string;
-  // Rendered once, directly above the first trend chart (full-size mode
-  // only) — for the range controls, which apply to every chart on the page
-  // but belong next to the graph they change rather than at the top.
-  beforeTrend?: React.ReactNode;
+  // When set (full-size mode only), every trend card gets the range presets
+  // in its header and the From/To form above its chart — the same layout as
+  // SiloMon's. They're all driven by the same URL params, so changing the
+  // range on any one chart changes every chart on the page.
+  range?: { slug: string; active: TrendRangeKey | null; from: string | null; to: string | null };
   // All-sites needs every site's every silo to fit on one screen, so it
   // trades the full tank gauge + axis-labeled chart for a mini gauge and a
   // bare sparkline, packed into a wrapping grid instead of one card per
@@ -82,11 +86,9 @@ export function SitePagesView({
     );
   }
 
-  const firstTrendIndex = pages.findIndex((p) => p.silos.length > 0);
-
   return (
     <>
-      {pages.map((page, pageIndex) => {
+      {pages.map((page) => {
         const trendSeries: TrendSeries[] = page.silos.map((silo) => ({
           id: `${page.slug}-${silo.name}`,
           name: silo.name,
@@ -125,17 +127,24 @@ export function SitePagesView({
             </Card>
 
             {page.silos.length > 0 && (
-              <>
-                {pageIndex === firstTrendIndex && beforeTrend}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Level trend</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-4">
-                    <SiloTrendChart series={trendSeries} axisFormat={axisFormat} emptyMessage={emptyMessage} />
-                  </CardContent>
-                </Card>
-              </>
+              <Card>
+                <CardHeader className={range ? "flex-row flex-wrap items-center justify-between gap-2" : undefined}>
+                  <CardTitle>Level trend</CardTitle>
+                  {range && <TrendRangeSelector slug={range.slug} active={range.active} />}
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  {range && (
+                    <TrendDateRangeForm
+                      slug={range.slug}
+                      from={range.from}
+                      to={range.to}
+                      active={range.from !== null}
+                      idPrefix={`trend-${page.slug}`}
+                    />
+                  )}
+                  <SiloTrendChart series={trendSeries} axisFormat={axisFormat} emptyMessage={emptyMessage} />
+                </CardContent>
+              </Card>
             )}
           </div>
         );
