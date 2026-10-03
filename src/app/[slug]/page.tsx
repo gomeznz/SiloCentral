@@ -133,30 +133,30 @@ export default async function SiteDetailPage({
         </Link>
       </div>
 
-      {/* One range control for the whole site: a site can have several pages,
-          each with its own trend chart, and they should all show the same window. */}
-      {hasSilos && (
-        <Card>
-          <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-            <CardTitle>Trend range</CardTitle>
-            <TrendRangeSelector slug={slug} active={view.preset} />
-          </CardHeader>
-          <CardContent className="pt-4">
-            <TrendDateRangeForm
-              slug={slug}
-              from={view.custom?.from ?? null}
-              to={view.custom?.to ?? null}
-              active={view.custom !== null}
-            />
-          </CardContent>
-        </Card>
-      )}
-
       <SitePagesView
         pages={site.latestReport?.pages ?? []}
         readings={readings}
         axisFormat={view.axis}
         emptyMessage={view.custom ? "No readings were recorded in this date range." : undefined}
+        // One range control for the whole site, shown directly above the first
+        // trend chart: a site can have several pages, each with its own chart,
+        // and they all show the same window.
+        beforeTrend={
+          <Card>
+            <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
+              <CardTitle>Trend range</CardTitle>
+              <TrendRangeSelector slug={slug} active={view.preset} />
+            </CardHeader>
+            <CardContent className="pt-4">
+              <TrendDateRangeForm
+                slug={slug}
+                from={view.custom?.from ?? null}
+                to={view.custom?.to ?? null}
+                active={view.custom !== null}
+              />
+            </CardContent>
+          </Card>
+        }
       />
     </div>
   );

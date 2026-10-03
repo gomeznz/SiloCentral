@@ -17,6 +17,7 @@ export function SitePagesView({
   compact = false,
   axisFormat,
   emptyMessage,
+  beforeTrend,
 }: {
   pages: SiteReport["pages"];
   readings: Reading[];
@@ -24,6 +25,10 @@ export function SitePagesView({
   // compact sparklines, which have no axis). See SiloTrendChart.
   axisFormat?: LocalDateTimeMode;
   emptyMessage?: string;
+  // Rendered once, directly above the first trend chart (full-size mode
+  // only) — for the range controls, which apply to every chart on the page
+  // but belong next to the graph they change rather than at the top.
+  beforeTrend?: React.ReactNode;
   // All-sites needs every site's every silo to fit on one screen, so it
   // trades the full tank gauge + axis-labeled chart for a mini gauge and a
   // bare sparkline, packed into a wrapping grid instead of one card per
@@ -77,9 +82,11 @@ export function SitePagesView({
     );
   }
 
+  const firstTrendIndex = pages.findIndex((p) => p.silos.length > 0);
+
   return (
     <>
-      {pages.map((page) => {
+      {pages.map((page, pageIndex) => {
         const trendSeries: TrendSeries[] = page.silos.map((silo) => ({
           id: `${page.slug}-${silo.name}`,
           name: silo.name,
@@ -118,14 +125,17 @@ export function SitePagesView({
             </Card>
 
             {page.silos.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Level trend</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <SiloTrendChart series={trendSeries} axisFormat={axisFormat} emptyMessage={emptyMessage} />
-                </CardContent>
-              </Card>
+              <>
+                {pageIndex === firstTrendIndex && beforeTrend}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Level trend</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <SiloTrendChart series={trendSeries} axisFormat={axisFormat} emptyMessage={emptyMessage} />
+                  </CardContent>
+                </Card>
+              </>
             )}
           </div>
         );
