@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 
 // Whether the SITE is reachable — distinct from StatusBadge, which is about a
-// silo's level. A site can be online with every silo OFFLINE (the Pi is up
-// but the PLC isn't answering), and the two must not look alike.
+// silo's level. A site can be online with every silo showing ERROR (the Pi is
+// up but the PLC isn't answering), and the two must not look alike.
 export function SiteOnlineBadge({ online, className }: { online: boolean; className?: string }) {
   return (
     <span

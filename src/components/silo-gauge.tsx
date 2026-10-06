@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { SiteSiloStatus } from "@/db/schema";
 import { LocalDateTime } from "@/components/local-date-time";
+import { SILO_STATUS_LABEL } from "@/lib/site-status";
 
 // Ported from SiloMon's own src/components/silo-gauge.tsx so a silo looks
 // the same way here as it does on the site that actually owns it — same
@@ -18,12 +19,12 @@ export const STATUS_FILL: Record<SiteSiloStatus, string> = {
   offline: "#94a3b8", // slate-400
 };
 
-const STATUS_BADGE: Record<SiteSiloStatus, { label: string; className: string }> = {
-  ok: { label: "OK", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-  low: { label: "LOW", className: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
-  critical: { label: "CRITICAL", className: "bg-red-600 text-white dark:bg-red-600 dark:text-white" },
-  high: { label: "HIGH", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-  offline: { label: "OFFLINE", className: "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300" },
+const STATUS_BADGE: Record<SiteSiloStatus, string> = {
+  ok: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+  low: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+  critical: "bg-red-600 text-white dark:bg-red-600 dark:text-white",
+  high: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+  offline: "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300",
 };
 
 const CARD_BACKGROUND: Record<SiteSiloStatus, string> = {
@@ -67,7 +68,6 @@ export function SiloGauge({
   // an unescaped space (or other CSS-meaningful character) in the id breaks
   // that reference silently, leaving the fill rect unclipped.
   const clipId = `silo-clip-${clipKey.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
-  const badge = STATUS_BADGE[status];
 
   return (
     <div
@@ -124,10 +124,10 @@ export function SiloGauge({
           className={cn(
             "inline-block rounded-full font-medium",
             compact ? "mt-1 px-1.5 py-0 text-[8px]" : "mt-1.5 px-2.5 py-0.5 text-xs",
-            badge.className,
+            STATUS_BADGE[status],
           )}
         >
-          {badge.label}
+          {SILO_STATUS_LABEL[status]}
         </span>
         {!compact && lastReadAt && (
           <div className="mt-1.5 text-xs text-slate-400 dark:text-slate-500">

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { SiteSiloStatus } from "@/db/schema";
+import { SILO_STATUS_LABEL } from "@/lib/site-status";
 
 // Same color language as SiloMon's own gauge badges (src/components/silo-gauge.tsx
 // there) — HIGH reads as green (well-stocked, not a warning), CRITICAL is the
@@ -21,7 +22,7 @@ export function StatusBadge({ status, className }: { status: SiteSiloStatus; cla
         className,
       )}
     >
-      {status.toUpperCase()}
+      {SILO_STATUS_LABEL[status]}
     </span>
   );
 }

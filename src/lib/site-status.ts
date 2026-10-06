@@ -20,6 +20,19 @@ export function isSiteOnline(lastSeen: Date | null): boolean {
   return !!lastSeen && Date.now() - lastSeen.getTime() <= ONLINE_WITHIN_MS;
 }
 
+// What each silo status is called on screen. The stored/API value stays
+// "offline" (it's part of the report SiloMon sends), but it reads ERROR here
+// because sitting next to a site's ONLINE badge, a silo that says OFFLINE
+// looks like a contradiction: the site is up, it's the sensor that isn't
+// answering.
+export const SILO_STATUS_LABEL: Record<SiteSiloStatus, string> = {
+  ok: "OK",
+  low: "LOW",
+  critical: "CRITICAL",
+  high: "HIGH",
+  offline: "ERROR",
+};
+
 export type SiteRollup = {
   counts: Record<SiteSiloStatus, number>;
   // Worst status across every silo in the last known report — independent
