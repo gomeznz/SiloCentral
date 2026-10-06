@@ -5,7 +5,8 @@ import { sites, siteSiloReadings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
-import { isSiteOnline } from "@/lib/site-status";
+import { SiteOnlineBadge } from "@/components/site-online-badge";
+import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 
 // Same window the single-site page uses.
 const TREND_WINDOW_MS = 3 * 60 * 60 * 1000;
@@ -57,20 +58,22 @@ export default async function AllSitesPage() {
         </p>
       ) : (
         allSites.map((site) => {
-          const online = isSiteOnline(site.lastReportAt);
+          const lastSeen = lastSeenAt(site);
+          const online = isSiteOnline(lastSeen);
 
           return (
             <div key={site.id} className="space-y-1.5 border-t border-slate-200 pt-1.5 dark:border-slate-800">
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-center gap-2">
                 <Link href={`/${site.slug}`} className="text-sm font-semibold hover:underline">
                   {site.name}
                 </Link>
+                <SiteOnlineBadge online={online} />
                 <span
                   className={`text-xs ${online ? "text-slate-400 dark:text-slate-500" : "text-red-600 dark:text-red-400"}`}
                 >
-                  {site.lastReportAt ? (
+                  {lastSeen ? (
                     <>
-                      {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+                      {online ? "Last seen" : "No contact since"} <LocalDateTime value={lastSeen} />
                     </>
                   ) : (
                     "Never reported"
@@ -78,11 +81,14 @@ export default async function AllSitesPage() {
                 </span>
               </div>
 
-              <SitePagesView
-                pages={site.latestReport?.pages ?? []}
-                readings={readings.filter((r) => r.siteId === site.id)}
-                compact
-              />
+              {/* An offline site's gauges are its last-known readings, so they're dimmed. */}
+              <div className={online ? undefined : "opacity-50"}>
+                <SitePagesView
+                  pages={site.latestReport?.pages ?? []}
+                  readings={readings.filter((r) => r.siteId === site.id)}
+                  compact
+                />
+              </div>
             </div>
           );
         })

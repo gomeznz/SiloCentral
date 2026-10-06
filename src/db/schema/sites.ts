@@ -34,6 +34,12 @@ export const sites = pgTable("sites", {
   apiKey: text("api_key").notNull().unique(),
   latestReport: jsonb("latest_report").$type<SiteReport>(),
   lastReportAt: timestamp("last_report_at", { withTimezone: true }),
+  // Bumped by the lightweight POST /api/heartbeat ping each site's worker
+  // sends every ~30s. Separate from lastReportAt on purpose: a report
+  // carries (and is stored with) real silo data, whereas a heartbeat only
+  // proves the site is alive — so it must not make stale silo data look
+  // fresh, nor add trend-history rows.
+  lastHeartbeatAt: timestamp("last_heartbeat_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

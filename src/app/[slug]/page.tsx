@@ -6,7 +6,8 @@ import { sites, siteSiloReadings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
-import { isSiteOnline } from "@/lib/site-status";
+import { SiteOnlineBadge } from "@/components/site-online-badge";
+import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 import {
   TREND_RANGES,
   axisForSpan,
@@ -67,7 +68,8 @@ export default async function SiteDetailPage({
     notFound();
   }
 
-  const online = isSiteOnline(site.lastReportAt);
+  const lastSeen = lastSeenAt(site);
+  const online = isSiteOnline(lastSeen);
 
   const hasSilos = !!site.latestReport && site.latestReport.pages.some((p) => p.silos.length > 0);
 
@@ -114,11 +116,14 @@ export default async function SiteDetailPage({
     <div className="mx-auto w-full max-w-6xl space-y-6 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">{site.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-semibold">{site.name}</h1>
+            <SiteOnlineBadge online={online} />
+          </div>
           <p className={`text-sm ${online ? "text-slate-500 dark:text-slate-400" : "text-red-600 dark:text-red-400"}`}>
-            {site.lastReportAt ? (
+            {lastSeen ? (
               <>
-                {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+                {online ? "Last seen" : "No contact since"} <LocalDateTime value={lastSeen} />
               </>
             ) : (
               "Never reported"
@@ -130,18 +135,37 @@ export default async function SiteDetailPage({
         </Link>
       </div>
 
-      <SitePagesView
-        pages={site.latestReport?.pages ?? []}
-        readings={readings}
-        axisFormat={view.axis}
-        emptyMessage={view.custom ? "No readings were recorded in this date range." : undefined}
-        range={{
-          slug,
-          active: view.preset,
-          from: view.custom?.from ?? null,
-          to: view.custom?.to ?? null,
-        }}
-      />
+      {!online && (
+        <div
+          role="alert"
+          className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+        >
+          {lastSeen ? (
+            <>
+              This site hasn&apos;t checked in since <LocalDateTime value={lastSeen} />. The levels below are the
+              last readings it reported, not live values.
+            </>
+          ) : (
+            "This site hasn't reported in yet."
+          )}
+        </div>
+      )}
+
+      {/* When offline these are only the last-known readings, so they're dimmed. */}
+      <div className={`space-y-6 ${online ? "" : "opacity-60"}`}>
+        <SitePagesView
+          pages={site.latestReport?.pages ?? []}
+          readings={readings}
+          axisFormat={view.axis}
+          emptyMessage={view.custom ? "No readings were recorded in this date range." : undefined}
+          range={{
+            slug,
+            active: view.preset,
+            from: view.custom?.from ?? null,
+            to: view.custom?.to ?? null,
+          }}
+        />
+      </div>
     </div>
   );
 }

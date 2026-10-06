@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { sites, siteSiloReadings } from "@/db/schema";
+import { authenticateSite } from "@/lib/site-auth";
 
 // A SiloMon site's worker POSTs its report here on a timer (see
 // CENTRAL_DASHBOARD_URL/CENTRAL_API_KEY in that repo's scripts/silo-worker.ts).
@@ -31,14 +32,8 @@ const SiloReportSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  const apiKey = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length) : null;
-  if (!apiKey) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const [site] = await db.select({ id: sites.id }).from(sites).where(eq(sites.apiKey, apiKey)).limit(1);
-  if (!site) {
+  const siteId = await authenticateSite(request);
+  if (siteId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -51,11 +46,11 @@ export async function POST(request: Request) {
   await db
     .update(sites)
     .set({ latestReport: parsed.data, lastReportAt: new Date() })
-    .where(eq(sites.id, site.id));
+    .where(eq(sites.id, siteId));
 
   const readings = parsed.data.pages.flatMap((page) =>
     page.silos.map((silo) => ({
-      siteId: site.id,
+      siteId,
       pageSlug: page.slug,
       siloName: silo.name,
       percent: silo.percent.toFixed(2),

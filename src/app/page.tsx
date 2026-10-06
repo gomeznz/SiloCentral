@@ -5,8 +5,9 @@ import { sites } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
+import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { LocalDateTime } from "@/components/local-date-time";
-import { isSiteOnline, siteRollup } from "@/lib/site-status";
+import { isSiteOnline, lastSeenAt, siteRollup } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
 // at build time (the DB isn't reachable from the build environment anyway).
@@ -37,17 +38,25 @@ export default async function HomePage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {allSites.map((site) => {
-            const online = isSiteOnline(site.lastReportAt);
+            const lastSeen = lastSeenAt(site);
+            const online = isSiteOnline(lastSeen);
             const { worst, counts } = siteRollup(site.latestReport);
             const siloCount = Object.values(counts).reduce((a, b) => a + b, 0);
 
             return (
               <Link key={site.id} href={`/${site.slug}`}>
-                <Card className="h-full transition-colors hover:border-indigo-300 dark:hover:border-indigo-700">
+                <Card
+                  className={`h-full transition-colors hover:border-indigo-300 dark:hover:border-indigo-700 ${online ? "" : "opacity-70"}`}
+                >
                   <CardHeader>
                     <div className="flex items-center justify-between gap-2">
                       <CardTitle>{site.name}</CardTitle>
-                      {worst && <StatusBadge status={worst} />}
+                      <div className="flex items-center gap-2">
+                        <SiteOnlineBadge online={online} />
+                        {/* A silo status from a site that has gone quiet is stale, so
+                            it's only shown while the site is actually reporting in. */}
+                        {online && worst && <StatusBadge status={worst} />}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-4">
@@ -57,9 +66,9 @@ export default async function HomePage() {
                     <p
                       className={`text-xs ${online ? "text-slate-400 dark:text-slate-500" : "text-red-600 dark:text-red-400"}`}
                     >
-                      {site.lastReportAt ? (
+                      {lastSeen ? (
                         <>
-                          {online ? "Last seen" : "Stale — last seen"} <LocalDateTime value={site.lastReportAt} />
+                          {online ? "Last seen" : "No contact since"} <LocalDateTime value={lastSeen} />
                         </>
                       ) : (
                         "Never reported"

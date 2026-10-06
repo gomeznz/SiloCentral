@@ -1,0 +1,1 @@
+ALTER TABLE "sites" ADD COLUMN "last_heartbeat_at" timestamp with time zone;

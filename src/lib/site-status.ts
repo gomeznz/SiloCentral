@@ -1,13 +1,23 @@
 import type { SiteReport, SiteSiloStatus } from "@/db/schema";
 
-// How long a site can go without a push before the dashboard treats its
-// last report as stale — generous relative to the worker's default 60s
-// push interval, since a slow network hop or a brief restart shouldn't
-// immediately flag a site as down.
-const STALE_AFTER_MS = 5 * 60 * 1000;
+// How long a site can go without sending anything before it's shown as
+// offline. A worker pings /api/heartbeat every ~30s and pushes a full report
+// every ~60s, so 2 minutes tolerates several missed pings (a slow network
+// hop, a brief restart) without a site flapping between online and offline,
+// while still flagging a genuinely dead site quickly.
+const ONLINE_WITHIN_MS = 2 * 60 * 1000;
 
-export function isSiteOnline(lastReportAt: Date | null): boolean {
-  return !!lastReportAt && Date.now() - lastReportAt.getTime() <= STALE_AFTER_MS;
+// Either kind of contact proves the site is alive, so "last seen" is
+// whichever came most recently. This also keeps sites still running an older
+// SiloMon (which only pushes reports, no heartbeat) working: their reports
+// alone arrive often enough to stay inside the window above.
+export function lastSeenAt(site: { lastReportAt: Date | null; lastHeartbeatAt: Date | null }): Date | null {
+  const times = [site.lastReportAt, site.lastHeartbeatAt].filter((d): d is Date => d !== null);
+  return times.length > 0 ? new Date(Math.max(...times.map((d) => d.getTime()))) : null;
+}
+
+export function isSiteOnline(lastSeen: Date | null): boolean {
+  return !!lastSeen && Date.now() - lastSeen.getTime() <= ONLINE_WITHIN_MS;
 }
 
 export type SiteRollup = {
