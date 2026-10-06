@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { LocalDateTime } from "@/components/local-date-time";
+import { requireUser } from "@/lib/auth";
 import { isSiteOnline, lastSeenAt, siteRollup } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
@@ -14,6 +15,7 @@ import { isSiteOnline, lastSeenAt, siteRollup } from "@/lib/site-status";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  const user = await requireUser();
   const allSites = await db.select().from(sites).orderBy(asc(sites.name));
 
   return (
@@ -24,9 +26,11 @@ export default async function HomePage() {
           <Link href="/all-sites" className={buttonVariants({ variant: "outline", size: "sm" })}>
             All Site View
           </Link>
-          <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
-            Setup
-          </Link>
+          {user.role === "admin" && (
+            <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              Setup
+            </Link>
+          )}
         </div>
       </div>
 

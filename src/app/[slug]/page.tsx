@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
+import { requireUser } from "@/lib/auth";
 import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 import {
   TREND_RANGES,
@@ -60,6 +61,7 @@ export default async function SiteDetailPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ range?: string; from?: string; to?: string; tz?: string }>;
 }) {
+  await requireUser();
   const { slug } = await params;
   const view = resolveTrendView(await searchParams);
 

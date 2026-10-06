@@ -2,6 +2,7 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
+import { requireAdmin } from "@/lib/auth";
 import { createSiteAction, deleteSiteAction } from "../actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
+  await requireAdmin();
   const { error } = await searchParams;
 
   const allSites = await db.select().from(sites).orderBy(asc(sites.name));
@@ -32,9 +34,14 @@ export default async function AdminPage({
             into that site&apos;s own Setup page (Central dashboard card) so its worker starts pushing reports.
           </p>
         </div>
-        <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          Sites
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/users" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Users
+          </Link>
+          <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Sites
+          </Link>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}

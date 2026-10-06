@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
+import { requireAdmin } from "@/lib/auth";
 import { updateSiteAction, regenerateApiKeyAction } from "../../actions";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ export default async function EditSitePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const { error } = await searchParams;
   const siteId = Number(id);

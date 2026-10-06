@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
+import { requireUser } from "@/lib/auth";
 import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 
 // Same window the single-site page uses.
@@ -20,6 +21,7 @@ function trendCutoff(): Date {
 export const dynamic = "force-dynamic";
 
 export default async function AllSitesPage() {
+  await requireUser();
   const allSites = await db.select().from(sites).orderBy(asc(sites.name));
 
   const siteIdsWithSilos = allSites

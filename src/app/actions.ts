@@ -1,10 +1,9 @@
 "use server";
 
-// No authentication exists in this app yet — anyone who can reach it can
-// add/delete sites and see/regenerate their API keys. Fine for internal
-// use; add an auth check here before this is reachable from anywhere
-// untrusted (it's a bigger deal here than in SiloMon itself, since a leaked
-// key lets someone impersonate a site's data feed).
+// Every action here changes sites or their API keys (a leaked key lets someone
+// impersonate a site's data feed), so each one starts with requireAdmin().
+// That check has to be in the action itself, not just the page that renders
+// the form: a Server Action is an endpoint anyone can POST to directly.
 
 import { randomBytes } from "crypto";
 import { z } from "zod";
@@ -13,6 +12,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { sites } from "@/db/schema";
+import { requireAdmin } from "@/lib/auth";
 
 function redirectWithError(path: string, message: string): never {
   redirect(`${path}?error=${encodeURIComponent(message)}`);
@@ -35,6 +35,7 @@ const CreateSiteSchema = z.object({
 });
 
 export async function createSiteAction(formData: FormData) {
+  await requireAdmin();
   const parsed = CreateSiteSchema.safeParse({ name: formData.get("name") });
   if (!parsed.success) {
     redirectWithError("/admin", parsed.error.issues[0]?.message ?? "Invalid input");
@@ -63,6 +64,7 @@ const UpdateSiteSchema = z.object({
 });
 
 export async function updateSiteAction(formData: FormData) {
+  await requireAdmin();
   const id = formData.get("id");
 
   const parsed = UpdateSiteSchema.safeParse({ id, name: formData.get("name") });
@@ -91,6 +93,7 @@ export async function updateSiteAction(formData: FormData) {
 }
 
 export async function regenerateApiKeyAction(formData: FormData) {
+  await requireAdmin();
   const { id } = z.object({ id: z.coerce.number().int().positive() }).parse({
     id: formData.get("id"),
   });
@@ -102,6 +105,7 @@ export async function regenerateApiKeyAction(formData: FormData) {
 }
 
 export async function deleteSiteAction(formData: FormData) {
+  await requireAdmin();
   const { id } = z.object({ id: z.coerce.number().int().positive() }).parse({
     id: formData.get("id"),
   });
