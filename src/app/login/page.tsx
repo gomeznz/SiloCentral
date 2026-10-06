@@ -5,6 +5,8 @@ import { safeNext } from "@/lib/safe-next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { LoginBackdrop } from "@/components/login-backdrop";
+import { SiloCentralLogo } from "@/components/silocentral-logo";
 import { Label } from "@/components/ui/label";
 
 // Depends on the visitor's cookie, so it can't be prerendered.
@@ -22,8 +24,10 @@ export default async function LoginPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm p-8 pt-16">
-      <Card>
+    <div className="mx-auto w-full max-w-sm p-8 pt-12">
+      <LoginBackdrop />
+      <SiloCentralLogo className="mb-8" />
+      <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
         </CardHeader>

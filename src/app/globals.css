@@ -23,3 +23,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Sign-in page backdrop: slow drifting colour and two layers of "product
+   level" waves. Pure CSS, so it costs no JavaScript, and it stands still for
+   anyone who has asked their system to reduce motion. */
+@keyframes login-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(10vw, 8vh, 0) scale(1.2); }
+}
+@keyframes login-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.1); }
+  50% { transform: translate3d(-12vw, -6vh, 0) scale(0.9); }
+}
+@keyframes login-wave {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+@keyframes login-level {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+.login-blob-a { animation: login-drift-a 26s ease-in-out infinite; }
+.login-blob-b { animation: login-drift-b 32s ease-in-out infinite; }
+.login-wave-back { animation: login-wave 38s linear infinite; }
+.login-wave-front { animation: login-wave 24s linear infinite; }
+.login-level { animation: login-level 6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .login-blob-a, .login-blob-b, .login-wave-back, .login-wave-front, .login-level {
+    animation: none;
+  }
+}
