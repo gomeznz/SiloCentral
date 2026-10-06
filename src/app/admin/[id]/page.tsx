@@ -54,9 +54,14 @@ export default async function EditSitePage({
           <h1 className="text-2xl font-semibold">Edit site</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">/{site.slug}</p>
         </div>
-        <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          Setup
-        </Link>
+        <div className="flex gap-2">
+          <Link href={`/admin/${site.id}/config`} className={buttonVariants({ variant: "default", size: "sm" })}>
+            Pages &amp; silos
+          </Link>
+          <Link href="/admin" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Setup
+          </Link>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}

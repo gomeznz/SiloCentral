@@ -13,10 +13,15 @@ export function LockedRowActions({
   editHref,
   deleteAction,
   deleteId,
+  deleteFields,
 }: {
   editHref: string;
   deleteAction: (formData: FormData) => void | Promise<void>;
-  deleteId: number;
+  // The row's numeric id, sent as the form field "id"...
+  deleteId?: number;
+  // ...or any other hidden fields the delete action needs (e.g. a site id
+  // plus a silo's uid, for configuration rows that have no numeric id).
+  deleteFields?: Record<string, string>;
 }) {
   const [unlocked, setUnlocked] = useState(false);
 
@@ -31,7 +36,10 @@ export function LockedRowActions({
             Edit
           </Link>
           <form action={deleteAction}>
-            <input type="hidden" name="id" value={deleteId} />
+            {deleteId !== undefined && <input type="hidden" name="id" value={deleteId} />}
+            {Object.entries(deleteFields ?? {}).map(([name, value]) => (
+              <input key={name} type="hidden" name={name} value={value} />
+            ))}
             <button
               type="submit"
               className="text-xs font-medium text-red-600 hover:text-red-700 dark:text-red-400"

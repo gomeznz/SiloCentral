@@ -61,7 +61,7 @@ export default async function SiteDetailPage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ range?: string; from?: string; to?: string; tz?: string }>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const { slug } = await params;
   const view = resolveTrendView(await searchParams);
 
@@ -132,9 +132,16 @@ export default async function SiteDetailPage({
             )}
           </p>
         </div>
-        <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          All sites
-        </Link>
+        <div className="flex gap-2">
+          {user.role === "admin" && (
+            <Link href={`/admin/${site.id}/config`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+              Settings
+            </Link>
+          )}
+          <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            All sites
+          </Link>
+        </div>
       </div>
 
       {!online && (
