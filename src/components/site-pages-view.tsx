@@ -70,6 +70,8 @@ export function SitePagesView({
                         currentValue={silo.currentValue}
                         capacity={silo.capacity}
                         unit={silo.unit}
+                        feedWeightTonnes={silo.feedWeightTonnes}
+                        feedStoredTonnes={silo.feedStoredTonnes}
                         status={silo.status}
                         lastReadAt={silo.lastReadAt}
                         size="compact"
@@ -116,6 +118,8 @@ export function SitePagesView({
                       currentValue={silo.currentValue}
                       capacity={silo.capacity}
                       unit={silo.unit}
+                      feedWeightTonnes={silo.feedWeightTonnes}
+                      feedStoredTonnes={silo.feedStoredTonnes}
                       status={silo.status}
                       lastReadAt={silo.lastReadAt}
                     />

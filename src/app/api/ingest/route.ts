@@ -24,6 +24,9 @@ const SiloReportSchema = z.object({
           currentValue: z.number().nullable(),
           capacity: z.number(),
           unit: z.string(),
+          // Absent from sites still running a SiloMon that predates feed weight.
+          feedWeightTonnes: z.number().nullable().optional(),
+          feedStoredTonnes: z.number().nullable().optional(),
           lastReadAt: z.string().nullable(),
         }),
       ),

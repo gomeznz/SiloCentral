@@ -18,6 +18,10 @@ export type SiteReport = {
       currentValue: number | null;
       capacity: number;
       unit: string;
+      // Newer SiloMon versions only — reports stored before a site was
+      // updated don't have these.
+      feedWeightTonnes?: number | null;
+      feedStoredTonnes?: number | null;
       lastReadAt: string | null;
     }[];
   }[];

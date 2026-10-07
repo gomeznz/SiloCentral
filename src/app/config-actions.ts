@@ -57,8 +57,10 @@ function describeChanges(label: string, before: object, after: object): string {
   const b = before as Record<string, unknown>;
   const a = after as Record<string, unknown>;
   const changes = Object.keys(a)
-    .filter((k) => k !== "uid" && JSON.stringify(a[k]) !== JSON.stringify(b[k]))
-    .map((k) => `${k} ${show(b[k])} → ${show(a[k])}`);
+    // `?? null`: a silo saved before a field existed has it undefined, which
+    // is the same as "not set", not a change.
+    .filter((k) => k !== "uid" && JSON.stringify(a[k] ?? null) !== JSON.stringify(b[k] ?? null))
+    .map((k) => `${k} ${show(b[k] ?? null)} → ${show(a[k] ?? null)}`);
   if (changes.length === 0) return `${label}: no changes`;
   const shown = changes.slice(0, 8).join("; ");
   return `${label}: ${shown}${changes.length > 8 ? ` (+${changes.length - 8} more)` : ""}`;
@@ -255,6 +257,7 @@ export async function deletePageAction(formData: FormData) {
 // ---- silos ----------------------------------------------------------------
 
 const optionalPercent = (value: string): number | null => (value === "" ? null : Number(value));
+const optionalNumber = optionalPercent; // same rule: blank means "not set"
 
 // Form fields -> the wire shape, checked on its own first so the admin gets a
 // message about the field they typed rather than about the whole document.
@@ -274,6 +277,7 @@ function readSilo(formData: FormData, uid: string, sortOrder: number): ConfigSil
     invertLevel: formData.get("invertLevel") === "on",
     capacity: Number(field(formData, "capacity")),
     unit: field(formData, "unit") || "t",
+    feedWeightTonnes: optionalNumber(field(formData, "feedWeightTonnes")),
     lowAlarmPercent: optionalPercent(field(formData, "lowAlarmPercent")),
     highAlarmPercent: optionalPercent(field(formData, "highAlarmPercent")),
     criticalPercent: optionalPercent(field(formData, "criticalPercent")),

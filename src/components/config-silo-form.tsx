@@ -93,7 +93,7 @@ export function ConfigSiloForm({
         </Label>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="capacity">Capacity</Label>
           <Input id="capacity" name="capacity" type="number" step="any" defaultValue={silo?.capacity} required />
@@ -102,7 +102,22 @@ export function ConfigSiloForm({
           <Label htmlFor="unit">Unit</Label>
           <Input id="unit" name="unit" defaultValue={silo?.unit ?? "t"} />
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="feedWeightTonnes">Feed weight (t, optional)</Label>
+          <Input
+            id="feedWeightTonnes"
+            name="feedWeightTonnes"
+            type="number"
+            step="any"
+            min={0}
+            defaultValue={silo?.feedWeightTonnes ?? undefined}
+          />
+        </div>
       </div>
+      <p className="-mt-2 text-xs text-slate-500 dark:text-slate-400">
+        Feed weight is the manufacturer&apos;s stated weight of feed when the silo is full, in tonnes. When set, the
+        dashboards show how many tonnes are stored. Capacity and unit describe the sensor reading and are separate.
+      </p>
 
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-1.5">
