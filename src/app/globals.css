@@ -55,3 +55,20 @@ body {
     animation: none;
   }
 }
+
+/* Countdown bar for auto-refreshing dashboards: fills over one refresh
+   interval (the duration is set inline) and is restarted by React on every
+   refresh. */
+@keyframes poll-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.poll-progress {
+  width: 0%;
+  animation-name: poll-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .poll-progress { animation: none; width: 100%; opacity: 0.4; }
+}

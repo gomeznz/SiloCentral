@@ -7,6 +7,7 @@ import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { requireUser } from "@/lib/auth";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 
 // Same window the single-site page uses.
@@ -53,6 +54,8 @@ export default async function AllSitesPage() {
           Back to sites
         </Link>
       </div>
+
+      <AutoRefresh />
 
       {allSites.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">

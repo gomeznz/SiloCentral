@@ -8,6 +8,7 @@ import { LocalDateTime } from "@/components/local-date-time";
 import { SitePagesView } from "@/components/site-pages-view";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { requireUser } from "@/lib/auth";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
 import {
   TREND_RANGES,
@@ -159,6 +160,8 @@ export default async function SiteDetailPage({
           )}
         </div>
       )}
+
+      <AutoRefresh />
 
       {/* When offline these are only the last-known readings, so they're dimmed. */}
       <div className={`space-y-6 ${online ? "" : "opacity-60"}`}>

@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { LocalDateTime } from "@/components/local-date-time";
 import { requireUser } from "@/lib/auth";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { isSiteOnline, lastSeenAt, siteRollup } from "@/lib/site-status";
 
 // Reads live DB state on every request — must not be statically prerendered
@@ -33,6 +34,8 @@ export default async function HomePage() {
           )}
         </div>
       </div>
+
+      <AutoRefresh />
 
       {allSites.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">
