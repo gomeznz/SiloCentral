@@ -24,6 +24,11 @@ export default async function HomePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Sites</h1>
         <div className="flex gap-2">
+          {/* A file download served by a route handler, not a page: a plain link is right. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/api/export/levels" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Download CSV
+          </a>
           <Link href="/all-sites" className={buttonVariants({ variant: "outline", size: "sm" })}>
             All Site View
           </Link>

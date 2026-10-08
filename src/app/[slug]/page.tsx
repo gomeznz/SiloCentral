@@ -10,50 +10,11 @@ import { SiteOnlineBadge } from "@/components/site-online-badge";
 import { requireUser } from "@/lib/auth";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { isSiteOnline, lastSeenAt } from "@/lib/site-status";
-import {
-  TREND_RANGES,
-  axisForSpan,
-  bucketSecondsForSpan,
-  parseTrendRange,
-  resolveCustomRange,
-  type CustomRange,
-  type TrendRangeKey,
-} from "@/lib/trend-range";
+import { resolveTrendView } from "@/lib/trend-view";
 
 // Reads live DB state on every request — must not be statically prerendered
 // at build time (the DB isn't reachable from the build environment anyway).
 export const dynamic = "force-dynamic";
-
-type TrendView = {
-  startMs: number;
-  endMs: number | null; // null = open-ended, i.e. "up to now"
-  bucketSeconds: number;
-  axis: "shortTime" | "shortDate" | "monthYear";
-  preset: TrendRangeKey | null; // which preset button is active, if any
-  custom: CustomRange | null;
-};
-
-// A valid custom from/to wins over a preset; anything else falls back to the
-// preset (itself defaulting to 3h). Lives outside the component because it
-// reads the clock, which React's purity lint disallows in a component body.
-function resolveTrendView(query: { range?: string; from?: string; to?: string; tz?: string }): TrendView {
-  const custom = resolveCustomRange(query.from, query.to, query.tz);
-  if (custom) {
-    const span = custom.endMs - custom.startMs;
-    return {
-      startMs: custom.startMs,
-      endMs: custom.endMs,
-      bucketSeconds: bucketSecondsForSpan(span),
-      axis: axisForSpan(span),
-      preset: null,
-      custom,
-    };
-  }
-
-  const preset = parseTrendRange(query.range);
-  const { windowMs, bucketSeconds, axis } = TREND_RANGES[preset];
-  return { startMs: Date.now() - windowMs, endMs: null, bucketSeconds, axis, preset, custom: null };
-}
 
 export default async function SiteDetailPage({
   params,
@@ -64,7 +25,14 @@ export default async function SiteDetailPage({
 }) {
   const user = await requireUser();
   const { slug } = await params;
-  const view = resolveTrendView(await searchParams);
+  const query = await searchParams;
+  const view = resolveTrendView(query);
+
+  // The CSV covers the trend range being shown, so it carries the same query.
+  const exportQuery = new URLSearchParams();
+  for (const key of ["range", "from", "to", "tz"] as const) {
+    if (query[key]) exportQuery.set(key, query[key]);
+  }
 
   const [site] = await db.select().from(sites).where(eq(sites.slug, slug)).limit(1);
   if (!site) {
@@ -134,6 +102,12 @@ export default async function SiteDetailPage({
           </p>
         </div>
         <div className="flex gap-2">
+          <a
+            href={`/api/export/history/${encodeURIComponent(slug)}${exportQuery.size > 0 ? `?${exportQuery}` : ""}`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Download CSV
+          </a>
           {user.role === "admin" && (
             <Link href={`/admin/${site.id}/config`} className={buttonVariants({ variant: "outline", size: "sm" })}>
               Settings

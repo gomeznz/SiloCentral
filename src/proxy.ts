@@ -8,8 +8,9 @@ import type { NextRequest } from "next/server";
 // Server Action.
 //
 // The endpoints SiloMon sites call authenticate with their own Bearer API
-// keys instead of a login, so they must stay reachable without a session.
-const PUBLIC_PATHS = ["/login", "/api/ingest", "/api/heartbeat", "/api/config"];
+// keys instead of a login, so they must stay reachable without a session. So
+// does the customer reporting API (/api/v1), which uses a customer's own key.
+const PUBLIC_PATHS = ["/login", "/api/ingest", "/api/heartbeat", "/api/config", "/api/v1"];
 
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;

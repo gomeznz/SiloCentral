@@ -35,6 +35,9 @@ export default async function AdminPage({
           </p>
         </div>
         <div className="flex gap-2">
+          <Link href="/admin/customers" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Customers &amp; API
+          </Link>
           <Link href="/admin/users" className={buttonVariants({ variant: "outline", size: "sm" })}>
             Users
           </Link>
