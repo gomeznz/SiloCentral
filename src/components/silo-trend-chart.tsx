@@ -40,7 +40,22 @@ export type TrendSeries = {
   // the same chart can have wildly different capacities, so plotting raw
   // values would put them on a scale that's meaningless across silos.
   points: { readAt: Date; value: number }[];
+  // The silo's full-silo feed weight in tonnes, when one is set. The tooltip
+  // then also shows the tonnes of feed at the point under the pointer.
+  feedWeightTonnes?: number | null;
 };
+
+// Tonnes of feed at a given fill percentage — the same rule the gauges and the
+// API use: the percentage (limited to 0-100) of the full-silo feed weight.
+function feedTonnesAt(percent: number, feedWeightTonnes: number | null | undefined): number | null {
+  if (feedWeightTonnes == null) return null;
+  return (Math.max(0, Math.min(100, percent)) / 100) * feedWeightTonnes;
+}
+
+// Tonnes to one decimal; whole numbers stay whole ("8 t", not "8.0 t").
+function formatTonnes(value: number): string {
+  return value.toLocaleString(undefined, { maximumFractionDigits: 1 });
+}
 
 // Points arrive sorted by time, so the closest one to `time` can be found by
 // bisection instead of scanning a few hundred points on every pointer move.
@@ -150,7 +165,16 @@ export function SiloTrendChart({
       : series.flatMap((s, i) => {
           const p = nearestPoint(s.points, activeTime);
           if (!p || Math.abs(p.readAt.getTime() - activeTime) > tolerance) return [];
-          return [{ id: s.id, name: s.name, color: PALETTE[i % PALETTE.length], value: p.value, time: p.readAt.getTime() }];
+          return [
+            {
+              id: s.id,
+              name: s.name,
+              color: PALETTE[i % PALETTE.length],
+              value: p.value,
+              tonnes: feedTonnesAt(p.value, s.feedWeightTonnes),
+              time: p.readAt.getTime(),
+            },
+          ];
         });
 
   const showTooltip = activeTime !== null && rows.length > 0;
@@ -258,7 +282,7 @@ export function SiloTrendChart({
         {showTooltip && activeTime !== null && (
           <div
             role="status"
-            className="pointer-events-none absolute z-10 min-w-36 rounded-md border border-slate-200 bg-white/95 px-3 py-2 text-xs shadow-lg dark:border-slate-700 dark:bg-slate-900/95"
+            className="pointer-events-none absolute z-10 min-w-44 rounded-md border border-slate-200 bg-white/95 px-3 py-2 text-xs shadow-lg dark:border-slate-700 dark:bg-slate-900/95"
             style={{
               left: `${tooltipLeftPercent}%`,
               top: `${(MARGIN.top / HEIGHT) * 100}%`,
@@ -279,6 +303,11 @@ export function SiloTrendChart({
                     {r.name}
                   </span>
                   <span className="font-medium tabular-nums text-slate-900 dark:text-slate-100">
+                    {r.tonnes !== null && (
+                      <span className="mr-2 font-normal text-slate-500 dark:text-slate-400">
+                        {formatTonnes(r.tonnes)} t
+                      </span>
+                    )}
                     {r.value.toFixed(1)}%
                   </span>
                 </div>

@@ -94,6 +94,7 @@ export function SitePagesView({
         const trendSeries: TrendSeries[] = page.silos.map((silo) => ({
           id: `${page.slug}-${silo.name}`,
           name: silo.name,
+          feedWeightTonnes: silo.feedWeightTonnes ?? null,
           points: readings
             .filter((r) => r.pageSlug === page.slug && r.siloName === silo.name)
             .map((r) => ({ readAt: r.recordedAt, value: Number(r.percent) })),
